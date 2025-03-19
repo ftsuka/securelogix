@@ -114,6 +114,56 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/40;
   }
+  
+  /* Densidade de layout */
+  :root[data-density="compact"] {
+    --card-padding: 0.75rem;
+    --input-height: 2rem;
+    --button-height: 2rem;
+    --spacing-unit: 0.5rem;
+  }
+  
+  :root[data-density="comfortable"] {
+    --card-padding: 1.25rem;
+    --input-height: 2.5rem;
+    --button-height: 2.5rem;
+    --spacing-unit: 1rem;
+  }
+  
+  :root[data-density="expanded"] {
+    --card-padding: 1.75rem;
+    --input-height: 3rem;
+    --button-height: 3rem;
+    --spacing-unit: 1.5rem;
+  }
+  
+  /* Aplica densidade aos componentes */
+  :root[data-density="compact"] .card {
+    @apply p-3;
+  }
+  
+  :root[data-density="expanded"] .card {
+    @apply p-7;
+  }
+  
+  /* Animações condicionais */
+  html:not([data-animations="disabled"]) .animate-transition {
+    @apply transition-all duration-300;
+  }
+  
+  html[data-contrast="high"] {
+    --foreground: 0 0% 0%;
+    --background: 0 0% 100%;
+    --muted-foreground: 0 0% 0%;
+    --border: 0 0% 0%;
+  }
+  
+  html[data-contrast="high"].dark {
+    --foreground: 0 0% 100%;
+    --background: 0 0% 0%;
+    --muted-foreground: 0 0% 100%;
+    --border: 0 0% 100%;
+  }
 }
 
 @layer components {
