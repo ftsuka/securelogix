@@ -27,22 +27,7 @@ const Team = () => {
         ]);
         
         setIncidents(incidentsData);
-        
-        // Transform database data to component format
-        const formattedMembers = membersData.map(member => ({
-          id: member.id,
-          name: member.name,
-          initials: member.initials,
-          image_url: member.image_url,
-          role: member.role,
-          email: member.email,
-          phone: member.phone,
-          status: member.status as 'available' | 'busy' | 'offline',
-          assignedIncidents: 0,
-          resolvedIncidents: 0
-        }));
-        
-        setTeamMembers(formattedMembers);
+        setTeamMembers(membersData);
         
         // Fetch user profile if authenticated
         if (user) {

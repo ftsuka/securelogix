@@ -10,4 +10,5 @@ export interface TeamMember {
   assignedIncidents: number;
   resolvedIncidents: number;
   status: 'available' | 'busy' | 'offline';
+  isProfileUser?: boolean;
 }

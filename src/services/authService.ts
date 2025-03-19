@@ -1,6 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { TeamMember } from "@/components/Team/types";
 
 export const logoutUser = async () => {
   try {
@@ -66,17 +66,52 @@ export const getUserProfile = async (userId: string) => {
   }
 };
 
-export const fetchTeamMembers = async () => {
+export const fetchTeamMembers = async (): Promise<TeamMember[]> => {
   try {
-    const { data, error } = await supabase
-      .from('team_members')
-      .select('*');
-      
-    if (error) {
-      throw error;
+    const [teamMembersResponse, profilesResponse] = await Promise.all([
+      supabase.from('team_members').select('*'),
+      supabase.from('profiles').select('*').not('role', 'is', null)
+    ]);
+    
+    if (teamMembersResponse.error) {
+      throw teamMembersResponse.error;
     }
     
-    return data || [];
+    if (profilesResponse.error) {
+      throw profilesResponse.error;
+    }
+    
+    const teamMembers = (teamMembersResponse.data || []).map(member => ({
+      id: member.id,
+      name: member.name,
+      initials: member.initials,
+      image_url: member.image_url,
+      role: member.role,
+      email: member.email,
+      phone: member.phone,
+      status: member.status,
+      assignedIncidents: 0,
+      resolvedIncidents: 0,
+      isProfileUser: false
+    }));
+    
+    const profileMembers = (profilesResponse.data || [])
+      .filter(profile => profile.role)
+      .map(profile => ({
+        id: profile.id,
+        name: profile.full_name || 'Unknown User',
+        initials: profile.initials || (profile.full_name ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'),
+        image_url: profile.avatar_url,
+        role: profile.role || 'Team Member',
+        email: '',
+        phone: profile.phone || '',
+        status: profile.status || 'available',
+        assignedIncidents: 0,
+        resolvedIncidents: 0,
+        isProfileUser: true
+      }));
+    
+    return [...teamMembers, ...profileMembers];
   } catch (error) {
     console.error("Erro ao buscar membros da equipe:", error);
     return [];

@@ -54,11 +54,13 @@ export const TeamMemberCard = ({ member, isCurrentUser = false }: TeamMemberCard
       </CardHeader>
       <CardContent className="pb-4">
         <div className="space-y-3">
-          <div className="flex items-center text-sm">
-            <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
-            <span>{member.email}</span>
-          </div>
-          {!isCurrentUser && (
+          {member.email && (
+            <div className="flex items-center text-sm">
+              <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
+              <span>{member.email}</span>
+            </div>
+          )}
+          {member.phone && !isCurrentUser && (
             <div className="flex items-center text-sm">
               <Phone className="mr-2 h-4 w-4 text-muted-foreground" />
               <span>{member.phone}</span>
