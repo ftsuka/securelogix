@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Dashboard/Layout';
 import { Button } from '@/components/ui/button';
@@ -15,10 +16,13 @@ import {
   Activity,
   Calendar,
   User,
-  Tag
+  Tag,
+  Edit
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import EditIncidentDialog from '@/components/Incidents/EditIncidentDialog';
+import { toast } from 'sonner';
 
 // Importar os mesmos tipos do IncidentCard para manter consistência
 import { 
@@ -216,12 +220,11 @@ const getTypeLabel = (type: IncidentType) => {
 const IncidentDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
-  // Buscar o incidente pelo ID
-  const incident = mockIncidents.find(inc => inc.id === id);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [incidentData, setIncidentData] = useState(mockIncidents.find(inc => inc.id === id));
   
   // Se não encontrar o incidente, mostrar uma mensagem de erro
-  if (!incident) {
+  if (!incidentData) {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center py-10">
@@ -240,6 +243,21 @@ const IncidentDetails = () => {
       </Layout>
     );
   }
+
+  const handleSaveIncident = (updatedIncident: any) => {
+    // Em uma aplicação real, isso enviaria dados para uma API
+    // Para esse exemplo, atualizamos apenas o estado local
+    setIncidentData(updatedIncident);
+    
+    // Também atualizamos o incidente no array de mockIncidents
+    // Isso é necessário apenas para este exemplo com dados simulados
+    const index = mockIncidents.findIndex(inc => inc.id === updatedIncident.id);
+    if (index !== -1) {
+      mockIncidents[index] = updatedIncident;
+    }
+    
+    toast.success("Incidente atualizado com sucesso");
+  };
   
   return (
     <Layout>
@@ -258,6 +276,15 @@ const IncidentDetails = () => {
             <h2 className="text-2xl font-semibold tracking-tight">Detalhes do Incidente</h2>
             <p className="text-muted-foreground">Informações completas e histórico do incidente</p>
           </div>
+          
+          <Button 
+            variant="outline"
+            className="gap-2"
+            onClick={() => setShowEditDialog(true)}
+          >
+            <Edit className="h-4 w-4" />
+            Editar Incidente
+          </Button>
         </div>
         
         {/* Informações principais do incidente */}
@@ -265,11 +292,11 @@ const IncidentDetails = () => {
           <CardHeader className="pb-3">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-2 mb-2 md:mb-0">
-                {getSeverityIcon(incident.severity)}
-                <CardTitle>{incident.title}</CardTitle>
+                {getSeverityIcon(incidentData.severity)}
+                <CardTitle>{incidentData.title}</CardTitle>
               </div>
-              <Badge variant="outline" className={`px-3 py-1.5 text-sm ${getStatusColor(incident.status)}`}>
-                {getStatusLabel(incident.status)}
+              <Badge variant="outline" className={`px-3 py-1.5 text-sm ${getStatusColor(incidentData.status)}`}>
+                {getStatusLabel(incidentData.status)}
               </Badge>
             </div>
           </CardHeader>
@@ -277,9 +304,9 @@ const IncidentDetails = () => {
             {/* Descrição */}
             <div>
               <h3 className="text-lg font-medium mb-2">Descrição</h3>
-              <p className="text-muted-foreground">{incident.description}</p>
-              {incident.additionalDetails && (
-                <p className="text-muted-foreground mt-2">{incident.additionalDetails}</p>
+              <p className="text-muted-foreground">{incidentData.description}</p>
+              {incidentData.additionalDetails && (
+                <p className="text-muted-foreground mt-2">{incidentData.additionalDetails}</p>
               )}
             </div>
             
@@ -291,7 +318,7 @@ const IncidentDetails = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Criado em</p>
-                  <p className="font-medium">{format(incident.createdAt, "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
+                  <p className="font-medium">{format(incidentData.createdAt, "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -300,7 +327,7 @@ const IncidentDetails = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Última atualização</p>
-                  <p className="font-medium">{format(incident.updatedAt, "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
+                  <p className="font-medium">{format(incidentData.updatedAt, "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -310,8 +337,8 @@ const IncidentDetails = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">Tipo</p>
                   <div className="flex items-center gap-1">
-                    {getTypeIcon(incident.type)}
-                    <span className="font-medium">{getTypeLabel(incident.type)}</span>
+                    {getTypeIcon(incidentData.type)}
+                    <span className="font-medium">{getTypeLabel(incidentData.type)}</span>
                   </div>
                 </div>
               </div>
@@ -320,13 +347,13 @@ const IncidentDetails = () => {
             {/* Responsável */}
             <div>
               <h3 className="text-lg font-medium mb-3">Responsável</h3>
-              {incident.assignedTo ? (
+              {incidentData.assignedTo ? (
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10">
-                    <AvatarFallback>{incident.assignedTo.initials}</AvatarFallback>
+                    <AvatarFallback>{incidentData.assignedTo.initials}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium">{incident.assignedTo.name}</p>
+                    <p className="font-medium">{incidentData.assignedTo.name}</p>
                     <p className="text-sm text-muted-foreground">Analista de Segurança</p>
                   </div>
                 </div>
@@ -339,11 +366,11 @@ const IncidentDetails = () => {
             </div>
             
             {/* Sistemas afetados */}
-            {incident.affectedSystems && (
+            {incidentData.affectedSystems && (
               <div>
                 <h3 className="text-lg font-medium mb-3">Sistemas Afetados</h3>
                 <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                  {incident.affectedSystems.map((system, index) => (
+                  {incidentData.affectedSystems.map((system, index) => (
                     <li key={index}>{system}</li>
                   ))}
                 </ul>
@@ -351,11 +378,11 @@ const IncidentDetails = () => {
             )}
             
             {/* Linha do tempo */}
-            {incident.timeline && (
+            {incidentData.timeline && (
               <div>
                 <h3 className="text-lg font-medium mb-3">Linha do Tempo</h3>
                 <div className="space-y-4">
-                  {incident.timeline.map((event, index) => (
+                  {incidentData.timeline.map((event, index) => (
                     <div key={index} className="flex gap-3">
                       <div className="mt-1 relative flex h-3 w-3 shrink-0">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -375,6 +402,14 @@ const IncidentDetails = () => {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Modal de edição */}
+      <EditIncidentDialog
+        incident={incidentData}
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        onSave={handleSaveIncident}
+      />
     </Layout>
   );
 };
