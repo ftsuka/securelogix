@@ -9,6 +9,10 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import IncidentDetails from "./pages/IncidentDetails";
+import Alerts from "./pages/Alerts";
+import Resolved from "./pages/Resolved";
+import History from "./pages/History";
+import Team from "./pages/Team";
 import insertSampleData from "./utils/insertSampleData";
 
 const queryClient = new QueryClient();
@@ -29,6 +33,10 @@ const App = () => {
             <Route path="/" element={<Index />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/incident/:id" element={<IncidentDetails />} />
+            <Route path="/alerts" element={<Alerts />} />
+            <Route path="/resolved" element={<Resolved />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/team" element={<Team />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
