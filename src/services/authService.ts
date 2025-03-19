@@ -70,7 +70,7 @@ export const fetchTeamMembers = async (): Promise<TeamMember[]> => {
   try {
     const [teamMembersResponse, profilesResponse] = await Promise.all([
       supabase.from('team_members').select('*'),
-      supabase.from('profiles').select('*').not('role', 'is', null)
+      supabase.from('profiles').select('*')
     ]);
     
     if (teamMembersResponse.error) {
@@ -96,20 +96,28 @@ export const fetchTeamMembers = async (): Promise<TeamMember[]> => {
     }));
     
     const profileMembers = (profilesResponse.data || [])
-      .filter(profile => profile.role)
-      .map(profile => ({
-        id: profile.id,
-        name: profile.full_name || 'Unknown User',
-        initials: profile.initials || (profile.full_name ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'),
-        image_url: profile.avatar_url,
-        role: profile.role || 'Team Member',
-        email: '',
-        phone: profile.phone || '',
-        status: profile.status || 'available',
-        assignedIncidents: 0,
-        resolvedIncidents: 0,
-        isProfileUser: true
-      }));
+      .filter(profile => {
+        return profile.full_name && profile.id;
+      })
+      .map(profile => {
+        const initials = profile.full_name 
+          ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() 
+          : 'U';
+        
+        return {
+          id: profile.id,
+          name: profile.full_name || 'Unknown User',
+          initials: initials,
+          image_url: profile.avatar_url,
+          role: 'Team Member',
+          email: '',
+          phone: '',
+          status: 'available' as const,
+          assignedIncidents: 0,
+          resolvedIncidents: 0,
+          isProfileUser: true
+        };
+      });
     
     return [...teamMembers, ...profileMembers];
   } catch (error) {
