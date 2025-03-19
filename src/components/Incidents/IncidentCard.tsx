@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -108,17 +109,27 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
   className,
   onClick
 }) => {
+  const navigate = useNavigate();
+  
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      navigate(`/incident/${id}`);
+    }
+  };
+  
   return (
     <Card 
       className={cn(
-        "overflow-hidden transition-all duration-300 hover:shadow-md hover:scale-[1.01] border border-border/60",
+        "overflow-hidden transition-all duration-300 hover:shadow-md hover:scale-[1.01] border border-border/60 cursor-pointer",
         severity === 'critical' && "border-l-4 border-l-destructive",
         severity === 'high' && "border-l-4 border-l-orange-500",
         severity === 'medium' && "border-l-4 border-l-yellow-500",
         severity === 'low' && "border-l-4 border-l-green-500",
         className
       )}
-      onClick={onClick}
+      onClick={handleCardClick}
     >
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
@@ -165,7 +176,15 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
         ) : (
           <span className="text-sm text-muted-foreground">Não atribuído</span>
         )}
-        <Button variant="ghost" size="sm" className="gap-1 text-xs h-8 px-2">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="gap-1 text-xs h-8 px-2"
+          onClick={(e) => {
+            e.stopPropagation(); // Evitar que o clique no botão propague para o cartão
+            navigate(`/incident/${id}`);
+          }}
+        >
           <span>Detalhes</span>
           <ArrowUpRight className="h-3.5 w-3.5" />
         </Button>
