@@ -27,8 +27,8 @@ export interface Incident {
 export interface EditIncidentFormValues {
   title: string;
   description: string;
-  severity: string;
-  status: string;
-  type: string;
+  severity: IncidentSeverity;
+  status: IncidentStatus;
+  type: IncidentType;
   additionalDetails?: string;
 }

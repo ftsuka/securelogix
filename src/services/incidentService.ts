@@ -159,10 +159,11 @@ export const createIncident = async (incident: Omit<Incident, 'id' | 'createdAt'
 
   // Inserir eventos da linha do tempo, se existirem
   if (incident.timeline && incident.timeline.length > 0) {
+    // Converter objetos Date para string ISO
     const timelineData = incident.timeline.map(event => ({
       incident_id: newIncident.id,
       event: event.event,
-      time: event.time
+      time: event.time.toISOString()
     }));
 
     const { error: timelineError } = await supabase

@@ -5,15 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
-
-interface EditIncidentFormValues {
-  title: string;
-  description: string;
-  severity: string;
-  status: string;
-  type: string;
-  additionalDetails?: string;
-}
+import { EditIncidentFormValues, IncidentSeverity, IncidentStatus, IncidentType } from './types';
 
 interface EditIncidentFormFieldsProps {
   form: UseFormReturn<EditIncidentFormValues>;
@@ -126,6 +118,7 @@ export const EditIncidentFormFields: React.FC<EditIncidentFormFieldsProps> = ({ 
                   <SelectItem value="unauthorized-access">Acesso não autorizado</SelectItem>
                   <SelectItem value="data-breach">Vazamento de dados</SelectItem>
                   <SelectItem value="ddos">DDoS</SelectItem>
+                  <SelectItem value="other">Outro</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

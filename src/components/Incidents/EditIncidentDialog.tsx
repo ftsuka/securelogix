@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { EditIncidentFormFields } from './EditIncidentFormFields';
 import { toast } from 'sonner';
-import { Incident } from './types';
+import { Incident, EditIncidentFormValues } from './types';
 
 interface EditIncidentDialogProps {
   incident: Incident;
@@ -28,7 +28,7 @@ const EditIncidentDialog: React.FC<EditIncidentDialogProps> = ({
   onOpenChange,
   onSave
 }) => {
-  const form = useForm({
+  const form = useForm<EditIncidentFormValues>({
     defaultValues: {
       title: incident.title,
       description: incident.description,
