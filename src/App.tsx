@@ -14,6 +14,7 @@ import Resolved from "./pages/Resolved";
 import History from "./pages/History";
 import Team from "./pages/Team";
 import Settings from "./pages/Settings";
+import Logout from "./pages/Logout";
 import insertSampleData from "./utils/insertSampleData";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
@@ -41,6 +42,7 @@ const App = () => {
               <Route path="/history" element={<History />} />
               <Route path="/team" element={<Team />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/logout" element={<Logout />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

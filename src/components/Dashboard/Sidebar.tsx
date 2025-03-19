@@ -13,9 +13,10 @@ import {
   Menu,
   X
 } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useToast } from '@/hooks/use-toast';
 
 interface SidebarItemProps {
   icon: React.ReactNode;
@@ -57,6 +58,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -158,6 +160,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
             icon={<LogOut size={18} />} 
             label="Sair" 
             path="/logout" 
+            active={location.pathname === '/logout'} 
             onClick={closeSidebar}
           />
         </div>
