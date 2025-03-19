@@ -13,6 +13,7 @@ import Alerts from "./pages/Alerts";
 import Resolved from "./pages/Resolved";
 import History from "./pages/History";
 import Team from "./pages/Team";
+import Settings from "./pages/Settings";
 import insertSampleData from "./utils/insertSampleData";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => {
             <Route path="/resolved" element={<Resolved />} />
             <Route path="/history" element={<History />} />
             <Route path="/team" element={<Team />} />
+            <Route path="/settings" element={<Settings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
