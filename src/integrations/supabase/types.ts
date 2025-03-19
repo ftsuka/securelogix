@@ -133,6 +133,45 @@ export type Database = {
         }
         Relationships: []
       }
+      team_members: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          image_url: string | null
+          initials: string
+          name: string
+          phone: string
+          role: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          image_url?: string | null
+          initials: string
+          name: string
+          phone: string
+          role: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          image_url?: string | null
+          initials?: string
+          name?: string
+          phone?: string
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       timeline_events: {
         Row: {
           created_at: string

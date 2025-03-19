@@ -3,27 +3,26 @@ import { Layout } from '@/components/Dashboard/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { 
   Users, 
-  User, 
-  ShieldCheck, 
-  BarChart, 
   Mail, 
   Phone, 
-  Shield, 
-  AlertCircle 
+  AlertCircle, 
+  ShieldCheck,
+  Loader2
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useEffect, useState } from 'react';
 import { fetchIncidents } from '@/services/incidentService';
 import { Incident } from '@/components/Incidents/types';
+import { useAuth } from '@/contexts/AuthContext';
+import { fetchTeamMembers, getUserProfile } from '@/services/authService';
 
 interface TeamMember {
-  id: number;
+  id: string;
   name: string;
   initials: string;
-  image?: string;
+  image_url?: string;
   role: string;
   email: string;
   phone: string;
@@ -33,83 +32,54 @@ interface TeamMember {
 }
 
 const Team = () => {
+  const { user } = useAuth();
   const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   
-  const teamMembers: TeamMember[] = [
-    {
-      id: 1,
-      name: 'Ana Silva',
-      initials: 'AS',
-      role: 'Analista de Segurança',
-      email: 'ana.silva@exemplo.com',
-      phone: '(11) 98765-4321',
-      assignedIncidents: 0,
-      resolvedIncidents: 0,
-      status: 'available'
-    },
-    {
-      id: 2,
-      name: 'Carlos Souza',
-      initials: 'CS',
-      role: 'Gerente de SOC',
-      email: 'carlos.souza@exemplo.com',
-      phone: '(11) 91234-5678',
-      assignedIncidents: 0,
-      resolvedIncidents: 0,
-      status: 'busy'
-    },
-    {
-      id: 3,
-      name: 'Juliana Almeida',
-      initials: 'JA',
-      role: 'Especialista Forense',
-      email: 'juliana.almeida@exemplo.com',
-      phone: '(11) 99876-5432',
-      assignedIncidents: 0,
-      resolvedIncidents: 0,
-      status: 'available'
-    },
-    {
-      id: 4,
-      name: 'Marcelo Oliveira',
-      initials: 'MO',
-      role: 'Analista de Resposta',
-      email: 'marcelo.oliveira@exemplo.com',
-      phone: '(11) 98877-6655',
-      assignedIncidents: 0,
-      resolvedIncidents: 0,
-      status: 'offline'
-    },
-    {
-      id: 5,
-      name: 'Patrícia Santos',
-      initials: 'PS',
-      role: 'Analista de Segurança Jr.',
-      email: 'patricia.santos@exemplo.com',
-      phone: '(11) 93322-1100',
-      assignedIncidents: 0,
-      resolvedIncidents: 0,
-      status: 'available'
-    }
-  ];
-  
   useEffect(() => {
-    const loadIncidents = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
-        const data = await fetchIncidents();
-        setIncidents(data);
+        const [incidentsData, membersData] = await Promise.all([
+          fetchIncidents(),
+          fetchTeamMembers()
+        ]);
+        
+        setIncidents(incidentsData);
+        
+        // Transformar os dados do banco para o formato que usamos no componente
+        const formattedMembers = membersData.map(member => ({
+          id: member.id,
+          name: member.name,
+          initials: member.initials,
+          image_url: member.image_url,
+          role: member.role,
+          email: member.email,
+          phone: member.phone,
+          status: member.status as 'available' | 'busy' | 'offline',
+          assignedIncidents: 0,
+          resolvedIncidents: 0
+        }));
+        
+        setTeamMembers(formattedMembers);
+        
+        // Buscar o perfil do usuário se ele estiver autenticado
+        if (user) {
+          const profile = await getUserProfile(user.id);
+          setUserProfile(profile);
+        }
       } catch (error) {
-        console.error('Erro ao carregar incidentes:', error);
+        console.error('Erro ao carregar dados:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadIncidents();
-  }, []);
+    loadData();
+  }, [user]);
   
   // Calculate assigned incidents per team member
   const teamWithStats = teamMembers.map(member => {
@@ -158,6 +128,17 @@ const Team = () => {
       default: return status;
     }
   };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
+          <span>Carregando membros da equipe...</span>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -224,14 +205,54 @@ const Team = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Cartão do usuário atual, se disponível */}
+          {userProfile && (
+            <Card key="current-user" className="overflow-hidden border-2 border-primary">
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center space-x-4">
+                    <Avatar className="h-12 w-12">
+                      {userProfile.avatar_url ? (
+                        <AvatarImage src={userProfile.avatar_url} alt={userProfile.full_name || user?.email || ''} />
+                      ) : null}
+                      <AvatarFallback>{userProfile.full_name ? userProfile.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'U'}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <CardTitle className="text-base">{userProfile.full_name || user?.email}</CardTitle>
+                      <p className="text-sm text-muted-foreground">Você (Membro da Equipe)</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-primary text-white">
+                    Ativo
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="pb-4">
+                <div className="space-y-3">
+                  <div className="flex items-center text-sm">
+                    <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <span>{user?.email}</span>
+                  </div>
+                  {userProfile?.username && (
+                    <div className="flex items-center text-sm">
+                      <Users className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <span>@{userProfile.username}</span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Listar todos os outros membros da equipe */}
           {filteredTeam.map((member) => (
             <Card key={member.id} className="overflow-hidden">
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center space-x-4">
                     <Avatar className="h-12 w-12">
-                      {member.image ? (
-                        <AvatarImage src={member.image} alt={member.name} />
+                      {member.image_url ? (
+                        <AvatarImage src={member.image_url} alt={member.name} />
                       ) : null}
                       <AvatarFallback>{member.initials}</AvatarFallback>
                     </Avatar>

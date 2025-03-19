@@ -65,3 +65,20 @@ export const getUserProfile = async (userId: string) => {
     return null;
   }
 };
+
+export const fetchTeamMembers = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('team_members')
+      .select('*');
+      
+    if (error) {
+      throw error;
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error("Erro ao buscar membros da equipe:", error);
+    return [];
+  }
+};
