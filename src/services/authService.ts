@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { TeamMember } from "@/components/Team/types";
@@ -89,7 +90,7 @@ export const fetchTeamMembers = async (): Promise<TeamMember[]> => {
       role: member.role,
       email: member.email,
       phone: member.phone,
-      status: member.status,
+      status: member.status as 'available' | 'busy' | 'offline',
       assignedIncidents: 0,
       resolvedIncidents: 0,
       isProfileUser: false
@@ -104,6 +105,9 @@ export const fetchTeamMembers = async (): Promise<TeamMember[]> => {
           ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase() 
           : 'U';
         
+        // Explicitly type status as one of the allowed values
+        const status: 'available' | 'busy' | 'offline' = 'available';
+        
         return {
           id: profile.id,
           name: profile.full_name || 'Unknown User',
@@ -112,7 +116,7 @@ export const fetchTeamMembers = async (): Promise<TeamMember[]> => {
           role: 'Team Member',
           email: '',
           phone: '',
-          status: 'available' as const,
+          status: status,
           assignedIncidents: 0,
           resolvedIncidents: 0,
           isProfileUser: true
