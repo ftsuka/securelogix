@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Dashboard/Layout';
@@ -324,7 +323,6 @@ const IncidentDetails = () => {
               {incident.assignedTo ? (
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={incident.assignedTo.avatar} />
                     <AvatarFallback>{incident.assignedTo.initials}</AvatarFallback>
                   </Avatar>
                   <div>
