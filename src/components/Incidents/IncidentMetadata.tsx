@@ -3,7 +3,7 @@ import React from 'react';
 import { Calendar, Clock, Tag } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { IncidentType } from '@/components/Incidents/IncidentCard';
+import { IncidentType } from './types';
 import { getTypeIcon, getTypeLabel } from './IncidentDetailUtils';
 
 interface IncidentMetadataProps {

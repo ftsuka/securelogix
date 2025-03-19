@@ -7,29 +7,10 @@ import { IncidentMetadata } from './IncidentMetadata';
 import { IncidentAssignee } from './IncidentAssignee';
 import { IncidentAffectedSystems } from './IncidentAffectedSystems';
 import { IncidentTimeline } from './IncidentTimeline';
-import { IncidentSeverity, IncidentStatus, IncidentType } from './IncidentCard';
+import { Incident } from './types';
 
 interface IncidentDetailCardProps {
-  incident: {
-    id: string;
-    title: string;
-    description: string;
-    severity: IncidentSeverity;
-    status: IncidentStatus;
-    type: IncidentType;
-    createdAt: Date;
-    updatedAt: Date;
-    assignedTo?: {
-      name: string;
-      initials: string;
-    };
-    additionalDetails?: string;
-    affectedSystems?: string[];
-    timeline?: {
-      time: Date;
-      event: string;
-    }[];
-  };
+  incident: Incident;
 }
 
 export const IncidentDetailCard: React.FC<IncidentDetailCardProps> = ({ incident }) => {
@@ -48,8 +29,8 @@ export const IncidentDetailCard: React.FC<IncidentDetailCardProps> = ({ incident
         />
         
         <IncidentMetadata 
-          createdAt={incident.createdAt}
-          updatedAt={incident.updatedAt}
+          createdAt={incident.createdAt!}
+          updatedAt={incident.updatedAt!}
           type={incident.type}
         />
         
