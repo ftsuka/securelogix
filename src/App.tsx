@@ -3,8 +3,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
+import { AuthProvider } from "./contexts/AuthContext";
+import { AuthGuard } from "./components/AuthGuard";
+import LandingPage from "./pages/LandingPage";
+import Auth from "./pages/Auth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
@@ -29,25 +33,36 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/incident/:id" element={<IncidentDetails />} />
-              <Route path="/alerts" element={<Alerts />} />
-              <Route path="/resolved" element={<Resolved />} />
-              <Route path="/history" element={<History />} />
-              <Route path="/team" element={<Team />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/logout" element={<Logout />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                {/* Rotas públicas */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/auth" element={<Auth />} />
+                
+                {/* Rotas protegidas */}
+                <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
+                <Route path="/incidents" element={<AuthGuard><Index /></AuthGuard>} />
+                <Route path="/incident/:id" element={<AuthGuard><IncidentDetails /></AuthGuard>} />
+                <Route path="/alerts" element={<AuthGuard><Alerts /></AuthGuard>} />
+                <Route path="/resolved" element={<AuthGuard><Resolved /></AuthGuard>} />
+                <Route path="/history" element={<AuthGuard><History /></AuthGuard>} />
+                <Route path="/team" element={<AuthGuard><Team /></AuthGuard>} />
+                <Route path="/settings" element={<AuthGuard><Settings /></AuthGuard>} />
+                <Route path="/logout" element={<AuthGuard><Logout /></AuthGuard>} />
+                
+                {/* Redirecionar / para /dashboard para usuários autenticados pela Sidebar */}
+                <Route path="/index" element={<Navigate to="/incidents" replace />} />
+                
+                {/* Rota 404 */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

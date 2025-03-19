@@ -31,3 +31,37 @@ export const logoutUser = async () => {
     return false;
   }
 };
+
+export const getCurrentUser = async () => {
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data.user;
+  } catch (error) {
+    console.error("Erro ao obter usuário atual:", error);
+    return null;
+  }
+};
+
+export const getUserProfile = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+      
+    if (error) {
+      throw error;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error("Erro ao obter perfil do usuário:", error);
+    return null;
+  }
+};

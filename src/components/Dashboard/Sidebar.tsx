@@ -97,7 +97,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         )}
       >
         <div className="flex items-center justify-center h-16 px-4 border-b border-border">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/dashboard" className="flex items-center gap-2">
             <ShieldAlert className="w-6 h-6 text-primary" />
             <span className="text-lg font-semibold text-foreground">SecureLogix</span>
           </Link>
@@ -107,8 +107,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
           <SidebarItem 
             icon={<ShieldAlert size={18} />} 
             label="Incidentes" 
-            path="/" 
-            active={location.pathname === '/'} 
+            path="/incidents" 
+            active={location.pathname === '/incidents' || location.pathname === '/'} 
             onClick={closeSidebar}
           />
           <SidebarItem 
