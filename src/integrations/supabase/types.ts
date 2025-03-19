@@ -9,7 +9,135 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      affected_systems: {
+        Row: {
+          created_at: string
+          id: string
+          incident_id: string
+          system_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          incident_id: string
+          system_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          incident_id?: string
+          system_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affected_systems_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assigned_users: {
+        Row: {
+          created_at: string
+          id: string
+          incident_id: string
+          initials: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          incident_id: string
+          initials: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          incident_id?: string
+          initials?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assigned_users_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      incidents: {
+        Row: {
+          additional_details: string | null
+          created_at: string
+          description: string
+          id: string
+          severity: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          additional_details?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          severity: string
+          status: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          additional_details?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          severity?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      timeline_events: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          incident_id: string
+          time: string
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          incident_id: string
+          time?: string
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          incident_id?: string
+          time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timeline_events_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

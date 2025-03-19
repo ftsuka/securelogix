@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { IncidentCard, IncidentStatus, IncidentSeverity, IncidentType } from './IncidentCard';
+import React, { useState, useEffect } from 'react';
+import { IncidentCard } from './IncidentCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { PlusCircle, Filter, X, AlertCircle } from 'lucide-react';
+import { PlusCircle, Filter, X, AlertCircle, Loader2 } from 'lucide-react';
 import { 
   Dialog, 
   DialogContent, 
@@ -22,21 +22,20 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Incident, IncidentSeverity, IncidentStatus, IncidentType } from './types';
+import { fetchIncidents, createIncident } from '@/services/incidentService';
+import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
 
-interface Incident {
-  id: string;
+interface NewIncidentFormValues {
   title: string;
   description: string;
   severity: IncidentSeverity;
   status: IncidentStatus;
   type: IncidentType;
-  createdAt: Date;
-  updatedAt: Date;
-  assignedTo?: {
-    name: string;
-    avatar?: string;
-    initials: string;
-  };
+  additionalDetails?: string;
 }
 
 export const IncidentList: React.FC = () => {
@@ -46,74 +45,40 @@ export const IncidentList: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<IncidentType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState<string>('all');
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
-  // Sample incident data
-  const incidents: Incident[] = [
-    {
-      id: '1',
-      title: 'Acesso não autorizado ao servidor de produção',
-      description: 'Detectado tentativa de acesso suspeito ao servidor principal de produção. Várias tentativas de login falhadas de um IP desconhecido.',
-      severity: 'critical',
-      status: 'investigating',
-      type: 'unauthorized-access',
-      createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-      updatedAt: new Date(Date.now() - 1000 * 60 * 15), // 15 minutes ago
-      assignedTo: {
-        name: 'João Silva',
-        initials: 'JS',
-      },
-    },
-    {
-      id: '2',
-      title: 'Campanha de phishing detectada',
-      description: 'Vários funcionários receberam e-mails fraudulentos solicitando credenciais corporativas. Email com origem suspeita.',
-      severity: 'high',
-      status: 'open',
-      type: 'phishing',
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
-      updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-    },
-    {
-      id: '3',
-      title: 'Malware detectado em estação de trabalho',
-      description: 'O antivírus detectou um trojan na estação de trabalho do departamento financeiro. Acesso à rede foi isolado.',
+  const form = useForm<NewIncidentFormValues>({
+    defaultValues: {
+      title: '',
+      description: '',
       severity: 'medium',
-      status: 'resolved',
-      type: 'malware',
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
-      updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1), // 1 day ago
-      assignedTo: {
-        name: 'Maria Santos',
-        initials: 'MS',
-      },
-    },
-    {
-      id: '4',
-      title: 'Vazamento potencial de dados',
-      description: 'Transferência suspeita de grande volume de dados para um domínio desconhecido. Possível exfiltração de dados sensíveis.',
-      severity: 'high',
-      status: 'investigating',
-      type: 'data-breach',
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12), // 12 hours ago
-      updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 6), // 6 hours ago
-      assignedTo: {
-        name: 'Carlos Oliveira',
-        initials: 'CO',
-      },
-    },
-    {
-      id: '5',
-      title: 'Ataque DDoS à API pública',
-      description: 'Serviço de API apresentando lentidão devido a elevado número de requisições maliciosas. Mitigação em andamento.',
-      severity: 'critical',
       status: 'open',
-      type: 'ddos',
-      createdAt: new Date(Date.now() - 1000 * 60 * 15), // 15 minutes ago
-      updatedAt: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
+      type: 'other',
+      additionalDetails: '',
     },
-  ];
+  });
 
-  // Filter incidents based on selected filters
+  // Carregar incidentes do Supabase
+  useEffect(() => {
+    const loadIncidents = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchIncidents();
+        setIncidents(data);
+      } catch (error) {
+        console.error('Erro ao carregar incidentes:', error);
+        toast.error('Não foi possível carregar os incidentes.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadIncidents();
+  }, []);
+
+  // Filtrar incidentes baseado nos filtros selecionados
   const filteredIncidents = incidents.filter(incident => {
     // Status filter
     if (statusFilter !== 'all' && incident.status !== statusFilter) {
@@ -160,6 +125,32 @@ export const IncidentList: React.FC = () => {
     setSearchQuery('');
   };
 
+  const handleCreateIncident = async (data: NewIncidentFormValues) => {
+    try {
+      // Criar o evento inicial
+      const initialEvent = {
+        time: new Date(),
+        event: 'Incidente criado'
+      };
+
+      await createIncident({
+        ...data,
+        timeline: [initialEvent],
+      });
+
+      toast.success('Incidente criado com sucesso!');
+      setIsDialogOpen(false);
+      form.reset();
+      
+      // Recarregar a lista de incidentes
+      const updatedIncidents = await fetchIncidents();
+      setIncidents(updatedIncidents);
+    } catch (error) {
+      console.error('Erro ao criar incidente:', error);
+      toast.error('Erro ao criar o incidente. Tente novamente.');
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -169,65 +160,155 @@ export const IncidentList: React.FC = () => {
         </div>
         
         <div className="flex gap-2">
-          <Dialog>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <PlusCircle className="h-4 w-4" />
                 Novo Incidente
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[550px]">
               <DialogHeader>
                 <DialogTitle>Criar Novo Incidente</DialogTitle>
                 <DialogDescription>
                   Preencha os detalhes para registrar um novo incidente de segurança.
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="title">Título</Label>
-                  <Input id="title" placeholder="Título do incidente" />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="description">Descrição</Label>
-                  <Input id="description" placeholder="Descreva o incidente em detalhes" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="severity">Severidade</Label>
-                    <Select>
-                      <SelectTrigger id="severity">
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="critical">Crítica</SelectItem>
-                        <SelectItem value="high">Alta</SelectItem>
-                        <SelectItem value="medium">Média</SelectItem>
-                        <SelectItem value="low">Baixa</SelectItem>
-                      </SelectContent>
-                    </Select>
+              
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleCreateIncident)} className="space-y-4 py-4">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Título</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Título do incidente" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Descrição</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Descreva o incidente em detalhes" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="severity"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Severidade</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="critical">Crítica</SelectItem>
+                              <SelectItem value="high">Alta</SelectItem>
+                              <SelectItem value="medium">Média</SelectItem>
+                              <SelectItem value="low">Baixa</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Status</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="open">Aberto</SelectItem>
+                              <SelectItem value="investigating">Investigando</SelectItem>
+                              <SelectItem value="resolved">Resolvido</SelectItem>
+                              <SelectItem value="closed">Fechado</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tipo</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="malware">Malware</SelectItem>
+                              <SelectItem value="phishing">Phishing</SelectItem>
+                              <SelectItem value="unauthorized-access">Acesso não autorizado</SelectItem>
+                              <SelectItem value="data-breach">Vazamento de dados</SelectItem>
+                              <SelectItem value="ddos">DDoS</SelectItem>
+                              <SelectItem value="other">Outro</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="type">Tipo</Label>
-                    <Select>
-                      <SelectTrigger id="type">
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="malware">Malware</SelectItem>
-                        <SelectItem value="phishing">Phishing</SelectItem>
-                        <SelectItem value="unauthorized-access">Acesso não autorizado</SelectItem>
-                        <SelectItem value="data-breach">Vazamento de dados</SelectItem>
-                        <SelectItem value="ddos">DDoS</SelectItem>
-                        <SelectItem value="other">Outro</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit">Salvar</Button>
-              </DialogFooter>
+                  
+                  <FormField
+                    control={form.control}
+                    name="additionalDetails"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Detalhes Adicionais</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Detalhes adicionais (opcional)" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <DialogFooter>
+                    <Button type="submit">Salvar</Button>
+                  </DialogFooter>
+                </form>
+              </Form>
             </DialogContent>
           </Dialog>
           
@@ -347,7 +428,12 @@ export const IncidentList: React.FC = () => {
         )}
         
         <TabsContent value={selectedTab} className="mt-0 space-y-4">
-          {filteredIncidents.length > 0 ? (
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2 text-lg">Carregando incidentes...</span>
+            </div>
+          ) : filteredIncidents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredIncidents.map((incident) => (
                 <IncidentCard
@@ -358,8 +444,8 @@ export const IncidentList: React.FC = () => {
                   severity={incident.severity}
                   status={incident.status}
                   type={incident.type}
-                  createdAt={incident.createdAt}
-                  updatedAt={incident.updatedAt}
+                  createdAt={incident.createdAt!}
+                  updatedAt={incident.updatedAt!}
                   assignedTo={incident.assignedTo}
                 />
               ))}
