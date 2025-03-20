@@ -113,7 +113,7 @@ export const fetchTeamMembers = async (): Promise<TeamMember[]> => {
           name: profile.full_name || 'Unknown User',
           initials: initials,
           image_url: profile.avatar_url,
-          role: 'Team Member',
+          role: profile.role || 'Team Member',
           email: '',
           phone: '',
           status: status,
