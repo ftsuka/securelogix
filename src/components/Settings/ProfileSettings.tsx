@@ -18,6 +18,8 @@ interface ProfileData {
   avatar_url: string | null;
   bio: string | null;
   role: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 const ProfileSettings = () => {
@@ -45,7 +47,19 @@ const ProfileSettings = () => {
         const profileData = await getUserProfile(user.id);
         
         if (profileData) {
-          setProfile(profileData);
+          // Make sure we're casting to the correct ProfileData type with all required fields
+          const completeProfileData: ProfileData = {
+            id: profileData.id,
+            full_name: profileData.full_name,
+            username: profileData.username,
+            avatar_url: profileData.avatar_url,
+            bio: profileData.bio || null,
+            role: profileData.role || null,
+            created_at: profileData.created_at,
+            updated_at: profileData.updated_at
+          };
+          
+          setProfile(completeProfileData);
           
           // Split full name into first and last name if available
           if (profileData.full_name) {
@@ -205,8 +219,8 @@ const ProfileSettings = () => {
               onChange={handleAvatarUpload}
               className="hidden"
             />
-            <Button variant="outline" size="sm" className="mb-1" as="span">
-              <Upload className="mr-2 h-4 w-4" /> Carregar imagem
+            <Button variant="outline" size="sm" className="mb-1" asChild>
+              <span><Upload className="mr-2 h-4 w-4" /> Carregar imagem</span>
             </Button>
           </label>
           <p className="text-xs text-muted-foreground">
