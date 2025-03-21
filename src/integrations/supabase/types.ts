@@ -113,6 +113,7 @@ export type Database = {
           id: string
           notification_date: string
           notification_source: string
+          partial_password: string | null
           updated_at: string
           username: string
         }
@@ -123,6 +124,7 @@ export type Database = {
           id?: string
           notification_date?: string
           notification_source: string
+          partial_password?: string | null
           updated_at?: string
           username: string
         }
@@ -133,6 +135,7 @@ export type Database = {
           id?: string
           notification_date?: string
           notification_source?: string
+          partial_password?: string | null
           updated_at?: string
           username?: string
         }

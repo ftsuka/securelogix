@@ -48,7 +48,8 @@ export const CredentialLeaksList: React.FC = () => {
         leak =>
           leak.email.toLowerCase().includes(query) ||
           leak.username.toLowerCase().includes(query) ||
-          leak.notification_source.toLowerCase().includes(query)
+          leak.notification_source.toLowerCase().includes(query) ||
+          (leak.partial_password && leak.partial_password.toLowerCase().includes(query))
       );
       setFilteredLeaks(filtered);
     }
