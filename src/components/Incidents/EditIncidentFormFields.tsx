@@ -1,17 +1,70 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
-import { EditIncidentFormValues, IncidentSeverity, IncidentStatus, IncidentType } from './types';
+import { EditIncidentFormValues, IncidentSeverity, IncidentStatus, IncidentType, CustomIncidentType } from './types';
+import { PlusCircle } from 'lucide-react';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter,
+  DialogTrigger 
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { fetchCustomIncidentTypes, createCustomIncidentType } from '@/services/incidents/customTypes';
+import { toast } from 'sonner';
 
 interface EditIncidentFormFieldsProps {
   form: UseFormReturn<EditIncidentFormValues>;
 }
 
 export const EditIncidentFormFields: React.FC<EditIncidentFormFieldsProps> = ({ form }) => {
+  const [customTypes, setCustomTypes] = useState<CustomIncidentType[]>([]);
+  const [newTypeName, setNewTypeName] = useState('');
+  const [isAddTypeDialogOpen, setIsAddTypeDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Carregar tipos personalizados ao montar o componente
+  useEffect(() => {
+    const loadCustomTypes = async () => {
+      try {
+        const types = await fetchCustomIncidentTypes();
+        setCustomTypes(types);
+      } catch (error) {
+        console.error('Erro ao carregar tipos personalizados:', error);
+      }
+    };
+
+    loadCustomTypes();
+  }, []);
+
+  const handleAddNewType = async () => {
+    if (!newTypeName.trim()) {
+      toast.error('O nome do tipo não pode estar vazio');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const newType = await createCustomIncidentType(newTypeName.trim());
+      setCustomTypes(prev => [...prev, newType]);
+      setNewTypeName('');
+      setIsAddTypeDialogOpen(false);
+      toast.success('Novo tipo de incidente adicionado com sucesso');
+    } catch (error) {
+      console.error('Erro ao adicionar novo tipo:', error);
+      toast.error('Erro ao adicionar novo tipo de incidente');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <FormField
@@ -102,7 +155,40 @@ export const EditIncidentFormFields: React.FC<EditIncidentFormFieldsProps> = ({ 
           name="type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tipo</FormLabel>
+              <div className="flex justify-between items-center">
+                <FormLabel>Tipo</FormLabel>
+                <Dialog open={isAddTypeDialogOpen} onOpenChange={setIsAddTypeDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-6 text-xs gap-1 px-2">
+                      <PlusCircle className="h-3 w-3" />
+                      Novo tipo
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Adicionar novo tipo de incidente</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4">
+                      <Label htmlFor="new-type-name">Nome do tipo</Label>
+                      <Input 
+                        id="new-type-name" 
+                        value={newTypeName}
+                        onChange={(e) => setNewTypeName(e.target.value)}
+                        placeholder="Ex: Vazamento de informações"
+                        className="mt-2"
+                      />
+                    </div>
+                    <DialogFooter>
+                      <Button 
+                        onClick={handleAddNewType} 
+                        disabled={isLoading || !newTypeName.trim()}
+                      >
+                        {isLoading ? 'Adicionando...' : 'Adicionar tipo'}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
               <Select 
                 onValueChange={field.onChange} 
                 defaultValue={field.value}
@@ -113,11 +199,20 @@ export const EditIncidentFormFields: React.FC<EditIncidentFormFieldsProps> = ({ 
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
+                  {/* Tipos padrão */}
                   <SelectItem value="malware">Malware</SelectItem>
                   <SelectItem value="phishing">Phishing</SelectItem>
                   <SelectItem value="unauthorized-access">Acesso não autorizado</SelectItem>
                   <SelectItem value="data-breach">Vazamento de dados</SelectItem>
                   <SelectItem value="ddos">DDoS</SelectItem>
+                  
+                  {/* Tipos personalizados */}
+                  {customTypes.map(type => (
+                    <SelectItem key={type.id} value={type.name}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                  
                   <SelectItem value="other">Outro</SelectItem>
                 </SelectContent>
               </Select>

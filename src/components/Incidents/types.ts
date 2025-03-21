@@ -1,7 +1,7 @@
 
 export type IncidentSeverity = 'critical' | 'high' | 'medium' | 'low';
 export type IncidentStatus = 'open' | 'investigating' | 'resolved' | 'closed';
-export type IncidentType = 'malware' | 'phishing' | 'unauthorized-access' | 'data-breach' | 'ddos' | 'other';
+export type IncidentType = 'malware' | 'phishing' | 'unauthorized-access' | 'data-breach' | 'ddos' | 'other' | string;
 
 export interface Incident {
   id: string;
@@ -31,4 +31,10 @@ export interface EditIncidentFormValues {
   status: IncidentStatus;
   type: IncidentType;
   additionalDetails?: string;
+}
+
+export interface CustomIncidentType {
+  id: string;
+  name: string;
+  createdAt: Date;
 }
