@@ -7,6 +7,7 @@ import { IncidentMetadata } from './IncidentMetadata';
 import { IncidentAssignee } from './IncidentAssignee';
 import { IncidentAffectedSystems } from './IncidentAffectedSystems';
 import { IncidentTimeline } from './IncidentTimeline';
+import { IncidentDetailContent } from './IncidentDetailContent';
 import { Incident } from './types';
 
 interface IncidentDetailCardProps {
@@ -24,22 +25,7 @@ export const IncidentDetailCard: React.FC<IncidentDetailCardProps> = ({ incident
       />
       
       <CardContent className="space-y-6">
-        <IncidentDescription 
-          description={incident.description}
-          additionalDetails={incident.additionalDetails}
-        />
-        
-        <IncidentMetadata 
-          createdAt={incident.createdAt!}
-          updatedAt={incident.updatedAt!}
-          type={incident.type}
-        />
-        
-        <IncidentAssignee assignedTo={incident.assignedTo} />
-        
-        <IncidentAffectedSystems systems={incident.affectedSystems} />
-        
-        <IncidentTimeline timeline={incident.timeline} />
+        <IncidentDetailContent incident={incident} />
       </CardContent>
     </Card>
   );
