@@ -20,6 +20,7 @@ export const IncidentDetailCard: React.FC<IncidentDetailCardProps> = ({ incident
         title={incident.title}
         severity={incident.severity}
         status={incident.status}
+        type={incident.type}
       />
       
       <CardContent className="space-y-6">
