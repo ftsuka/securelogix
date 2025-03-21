@@ -2,19 +2,21 @@
 import React from 'react';
 import { CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { IncidentSeverity, IncidentStatus } from '@/components/Incidents/types';
-import { getSeverityIcon, getStatusColor, getStatusLabel } from './IncidentDetailUtils';
+import { IncidentSeverity, IncidentStatus, IncidentType } from '@/components/Incidents/types';
+import { getSeverityIcon, getStatusColor, getStatusLabel, getTypeIcon, getTypeLabel } from './IncidentDetailUtils';
 
 interface IncidentCardHeaderProps {
   title: string;
   severity: IncidentSeverity;
   status: IncidentStatus;
+  type: IncidentType;
 }
 
 export const IncidentCardHeader: React.FC<IncidentCardHeaderProps> = ({
   title,
   severity,
-  status
+  status,
+  type
 }) => {
   return (
     <CardHeader className="pb-3">
@@ -23,9 +25,15 @@ export const IncidentCardHeader: React.FC<IncidentCardHeaderProps> = ({
           {getSeverityIcon(severity)}
           <CardTitle>{title}</CardTitle>
         </div>
-        <Badge variant="outline" className={`px-3 py-1.5 text-sm ${getStatusColor(status)}`}>
-          {getStatusLabel(status)}
-        </Badge>
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="outline" className={`px-3 py-1.5 text-sm ${getStatusColor(status)}`}>
+            {getStatusLabel(status)}
+          </Badge>
+          <Badge variant="secondary" className="px-3 py-1.5 text-sm flex items-center gap-1">
+            {getTypeIcon(type)}
+            <span>{getTypeLabel(type)}</span>
+          </Badge>
+        </div>
       </div>
     </CardHeader>
   );

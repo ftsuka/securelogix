@@ -5,7 +5,12 @@ import {
   AlertTriangle, 
   AlertCircle, 
   CheckCircle,
-  Activity
+  Bug,
+  Mail,
+  Lock,
+  Database,
+  Zap,
+  HelpCircle
 } from 'lucide-react';
 import { 
   IncidentSeverity, 
@@ -62,17 +67,17 @@ export const getStatusLabel = (status: IncidentStatus) => {
 export const getTypeIcon = (type: IncidentType) => {
   switch (type) {
     case 'malware':
-      return <Activity className="h-5 w-5" />;
+      return <Bug className="h-4 w-4" />;
     case 'phishing':
-      return <AlertCircle className="h-5 w-5" />;
+      return <Mail className="h-4 w-4" />;
     case 'unauthorized-access':
-      return <Shield className="h-5 w-5" />;
+      return <Lock className="h-4 w-4" />;
     case 'data-breach':
-      return <AlertTriangle className="h-5 w-5" />;
+      return <Database className="h-4 w-4" />;
     case 'ddos':
-      return <Activity className="h-5 w-5" />;
+      return <Zap className="h-4 w-4" />;
     default:
-      return <AlertCircle className="h-5 w-5" />;
+      return <HelpCircle className="h-4 w-4" />;
   }
 };
 
