@@ -124,7 +124,7 @@ const Alerts = () => {
                 description={incident.description}
                 severity={incident.severity}
                 status={incident.status}
-                type={incident.type}
+                type={incident.type as IncidentType}
                 createdAt={incident.createdAt!}
                 updatedAt={incident.updatedAt!}
                 assignedTo={incident.assignedTo}

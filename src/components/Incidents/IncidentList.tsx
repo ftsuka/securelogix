@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { IncidentCard } from './IncidentCard';
 import { Button } from '@/components/ui/button';
@@ -60,7 +59,6 @@ export const IncidentList: React.FC = () => {
     },
   });
 
-  // Carregar incidentes do Supabase
   useEffect(() => {
     const loadIncidents = async () => {
       try {
@@ -78,30 +76,24 @@ export const IncidentList: React.FC = () => {
     loadIncidents();
   }, []);
 
-  // Filtrar incidentes baseado nos filtros selecionados
   const filteredIncidents = incidents.filter(incident => {
-    // Status filter
     if (statusFilter !== 'all' && incident.status !== statusFilter) {
       return false;
     }
     
-    // Severity filter
     if (severityFilter !== 'all' && incident.severity !== severityFilter) {
       return false;
     }
     
-    // Type filter
     if (typeFilter !== 'all' && incident.type !== typeFilter) {
       return false;
     }
     
-    // Search query
     if (searchQuery && !incident.title.toLowerCase().includes(searchQuery.toLowerCase()) && 
         !incident.description.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
     
-    // Tab filter
     if (selectedTab === 'open' && incident.status !== 'open') {
       return false;
     }
@@ -127,7 +119,6 @@ export const IncidentList: React.FC = () => {
 
   const handleCreateIncident = async (data: NewIncidentFormValues) => {
     try {
-      // Criar o evento inicial
       const initialEvent = {
         time: new Date(),
         event: 'Incidente criado'
@@ -142,7 +133,6 @@ export const IncidentList: React.FC = () => {
       setIsDialogOpen(false);
       form.reset();
       
-      // Recarregar a lista de incidentes
       const updatedIncidents = await fetchIncidents();
       setIncidents(updatedIncidents);
     } catch (error) {
@@ -443,7 +433,7 @@ export const IncidentList: React.FC = () => {
                   description={incident.description}
                   severity={incident.severity}
                   status={incident.status}
-                  type={incident.type}
+                  type={incident.type as IncidentType}
                   createdAt={incident.createdAt!}
                   updatedAt={incident.updatedAt!}
                   assignedTo={incident.assignedTo}

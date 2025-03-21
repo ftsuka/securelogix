@@ -6,13 +6,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Clock, ArrowUpRight, Shield, AlertTriangle, AlertCircle, CheckCircle, Cpu } from 'lucide-react';
+import { Clock, ArrowUpRight, Activity } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
-export type IncidentSeverity = 'critical' | 'high' | 'medium' | 'low';
-export type IncidentStatus = 'open' | 'investigating' | 'resolved' | 'closed';
-export type IncidentType = 'malware' | 'phishing' | 'unauthorized-access' | 'data-breach' | 'ddos' | 'other';
+import { IncidentSeverity, IncidentStatus, IncidentType } from './types';
+import { getSeverityIcon, getStatusColor, getTypeIcon, getTypeLabel } from './IncidentDetailUtils';
 
 export interface IncidentCardProps {
   id: string;
@@ -31,70 +29,6 @@ export interface IncidentCardProps {
   className?: string;
   onClick?: () => void;
 }
-
-const getSeverityIcon = (severity: IncidentSeverity) => {
-  switch (severity) {
-    case 'critical':
-      return <Shield className="h-4 w-4 text-destructive" />;
-    case 'high':
-      return <AlertTriangle className="h-4 w-4 text-orange-500" />;
-    case 'medium':
-      return <AlertCircle className="h-4 w-4 text-yellow-500" />;
-    case 'low':
-      return <CheckCircle className="h-4 w-4 text-green-500" />;
-    default:
-      return <Shield className="h-4 w-4" />;
-  }
-};
-
-const getTypeIcon = (type: IncidentType) => {
-  switch (type) {
-    case 'malware':
-      return <Cpu className="h-4 w-4" />;
-    case 'phishing':
-      return <AlertCircle className="h-4 w-4" />;
-    case 'unauthorized-access':
-      return <Shield className="h-4 w-4" />;
-    case 'data-breach':
-      return <AlertTriangle className="h-4 w-4" />;
-    case 'ddos':
-      return <Activity className="h-4 w-4" />;
-    default:
-      return <AlertCircle className="h-4 w-4" />;
-  }
-};
-
-const getStatusColor = (status: IncidentStatus) => {
-  switch (status) {
-    case 'open':
-      return "bg-red-500/10 text-red-500 border-red-500/20";
-    case 'investigating':
-      return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
-    case 'resolved':
-      return "bg-green-500/10 text-green-500 border-green-500/20";
-    case 'closed':
-      return "bg-blue-500/10 text-blue-500 border-blue-500/20";
-    default:
-      return "bg-gray-500/10 text-gray-500 border-gray-500/20";
-  }
-};
-
-const getTypeLabel = (type: IncidentType) => {
-  switch (type) {
-    case 'malware':
-      return "Malware";
-    case 'phishing':
-      return "Phishing";
-    case 'unauthorized-access':
-      return "Acesso não autorizado";
-    case 'data-breach':
-      return "Vazamento de dados";
-    case 'ddos':
-      return "DDoS";
-    default:
-      return "Outro";
-  }
-};
 
 export const IncidentCard: React.FC<IncidentCardProps> = ({
   id,
@@ -192,8 +126,5 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({
     </Card>
   );
 };
-
-// Import missing component
-import { Activity } from 'lucide-react';
 
 export default IncidentCard;
