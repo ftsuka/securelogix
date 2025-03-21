@@ -1,18 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { PlusCircle, Search, FileEdit, Trash2, History } from 'lucide-react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CredentialLeak } from './types';
 import { fetchCredentialLeaks, deleteCredentialLeak } from '@/services/credentialLeaks';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import CreateCredentialLeakDialog from './CreateCredentialLeakDialog';
 import EditCredentialLeakDialog from './EditCredentialLeakDialog';
 import CredentialLeakLogsDialog from './CredentialLeakLogsDialog';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import CredentialLeaksHeader from './CredentialLeaksHeader';
+import CredentialLeaksSearch from './CredentialLeaksSearch';
+import CredentialLeaksTable from './CredentialLeaksTable';
 
 export const CredentialLeaksList: React.FC = () => {
   const [leaks, setLeaks] = useState<CredentialLeak[]>([]);
@@ -80,21 +77,15 @@ export const CredentialLeaksList: React.FC = () => {
     setIsLogsDialogOpen(true);
   };
 
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight">Vazamentos de Credenciais</h2>
-          <p className="text-muted-foreground">Monitoramento e gestão de vazamentos de credenciais</p>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
-            <PlusCircle className="h-4 w-4" />
-            Novo Registro
-          </Button>
-        </div>
-      </div>
+      <CredentialLeaksHeader 
+        onOpenCreateDialog={() => setIsCreateDialogOpen(true)}
+      />
 
       <Card>
         <CardHeader className="pb-3">
@@ -102,16 +93,11 @@ export const CredentialLeaksList: React.FC = () => {
           <CardDescription>
             Lista de todos os vazamentos de credenciais registrados no sistema
           </CardDescription>
-          <div className="flex w-full max-w-sm items-center space-x-2 mt-4">
-            <Input
-              placeholder="Buscar por email, username..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="flex-1"
+          <div className="mt-4">
+            <CredentialLeaksSearch 
+              searchQuery={searchQuery} 
+              onSearchChange={handleSearchChange} 
             />
-            <Button variant="outline" size="icon">
-              <Search className="h-4 w-4" />
-            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -124,63 +110,12 @@ export const CredentialLeaksList: React.FC = () => {
               <p>Nenhum registro encontrado</p>
             </div>
           ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Username/Matrícula</TableHead>
-                    <TableHead>Data da Notificação</TableHead>
-                    <TableHead>Origem</TableHead>
-                    <TableHead>Ação Tomada</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredLeaks.map(leak => (
-                    <TableRow key={leak.id}>
-                      <TableCell>{leak.email}</TableCell>
-                      <TableCell>{leak.username}</TableCell>
-                      <TableCell>
-                        {format(leak.notification_date, 'dd/MM/yyyy HH:mm')}
-                      </TableCell>
-                      <TableCell>{leak.notification_source}</TableCell>
-                      <TableCell>
-                        {leak.action_taken ? leak.action_taken : 'Nenhuma ação registrada'}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => handleViewLogs(leak)}
-                            title="Ver histórico"
-                          >
-                            <History className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => handleEditClick(leak)}
-                            title="Editar"
-                          >
-                            <FileEdit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => handleDeleteLeak(leak.id)}
-                            title="Excluir"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            <CredentialLeaksTable 
+              leaks={filteredLeaks}
+              onEdit={handleEditClick}
+              onDelete={handleDeleteLeak}
+              onViewLogs={handleViewLogs}
+            />
           )}
         </CardContent>
       </Card>

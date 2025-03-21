@@ -42,9 +42,15 @@ export async function fetchCredentialLeakById(id: string): Promise<CredentialLea
 }
 
 export async function createCredentialLeak(leakData: CreateCredentialLeakFormValues): Promise<CredentialLeak> {
+  // Convert Date object to ISO string for the database
+  const formattedData = {
+    ...leakData,
+    notification_date: leakData.notification_date.toISOString(),
+  };
+
   const { data, error } = await supabase
     .from('credential_leaks')
-    .insert([leakData])
+    .insert([formattedData])
     .select()
     .single();
 
@@ -62,9 +68,15 @@ export async function createCredentialLeak(leakData: CreateCredentialLeakFormVal
 }
 
 export async function updateCredentialLeak(id: string, leakData: Partial<CreateCredentialLeakFormValues>): Promise<CredentialLeak> {
+  // Convert Date object to ISO string for the database if it exists
+  const formattedData = {
+    ...leakData,
+    notification_date: leakData.notification_date ? leakData.notification_date.toISOString() : undefined,
+  };
+
   const { data, error } = await supabase
     .from('credential_leaks')
-    .update(leakData)
+    .update(formattedData)
     .eq('id', id)
     .select()
     .single();
@@ -108,6 +120,7 @@ export async function fetchCredentialLeakLogs(leakId: string): Promise<Credentia
 
   return data.map(log => ({
     ...log,
+    action: log.action as "CREATE" | "UPDATE" | "DELETE",
     created_at: new Date(log.created_at)
   }));
 }
