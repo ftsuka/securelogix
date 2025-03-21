@@ -3,7 +3,7 @@ import { Layout } from '@/components/Dashboard/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Bell, Shield } from 'lucide-react';
 import { fetchIncidents } from '@/services/incidentService';
-import { Incident } from '@/components/Incidents/types';
+import { Incident, IncidentType } from '@/components/Incidents/types';
 import { useEffect, useState } from 'react';
 import { IncidentCard } from '@/components/Incidents/IncidentCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -124,7 +124,7 @@ const Alerts = () => {
                 description={incident.description}
                 severity={incident.severity}
                 status={incident.status}
-                type={incident.type as IncidentType}
+                type={incident.type}
                 createdAt={incident.createdAt!}
                 updatedAt={incident.updatedAt!}
                 assignedTo={incident.assignedTo}

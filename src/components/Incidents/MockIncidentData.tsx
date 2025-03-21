@@ -1,5 +1,5 @@
 
-import { IncidentSeverity, IncidentStatus, IncidentType } from './IncidentCard';
+import { IncidentSeverity, IncidentStatus, IncidentType } from './types';
 
 // Dados simulados para exemplificar (em produção, viriam de uma API)
 export const mockIncidents = [

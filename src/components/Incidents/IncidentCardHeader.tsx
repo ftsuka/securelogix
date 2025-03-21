@@ -2,7 +2,7 @@
 import React from 'react';
 import { CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { IncidentSeverity, IncidentStatus } from '@/components/Incidents/IncidentCard';
+import { IncidentSeverity, IncidentStatus } from '@/components/Incidents/types';
 import { getSeverityIcon, getStatusColor, getStatusLabel } from './IncidentDetailUtils';
 
 interface IncidentCardHeaderProps {
