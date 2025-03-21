@@ -19,6 +19,7 @@ import History from "./pages/History";
 import Team from "./pages/Team";
 import Settings from "./pages/Settings";
 import Logout from "./pages/Logout";
+import CredentialLeaks from "./pages/CredentialLeaks";
 import insertSampleData from "./utils/insertSampleData";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
@@ -51,6 +52,7 @@ const App = () => {
                 <Route path="/resolved" element={<AuthGuard><Resolved /></AuthGuard>} />
                 <Route path="/history" element={<AuthGuard><History /></AuthGuard>} />
                 <Route path="/team" element={<AuthGuard><Team /></AuthGuard>} />
+                <Route path="/credential-leaks" element={<AuthGuard><CredentialLeaks /></AuthGuard>} />
                 <Route path="/settings" element={<AuthGuard><Settings /></AuthGuard>} />
                 <Route path="/logout" element={<AuthGuard><Logout /></AuthGuard>} />
                 

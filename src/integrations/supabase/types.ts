@@ -70,6 +70,74 @@ export type Database = {
           },
         ]
       }
+      credential_leak_logs: {
+        Row: {
+          action: string
+          created_at: string
+          credential_leak_id: string
+          details: Json
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          credential_leak_id: string
+          details: Json
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          credential_leak_id?: string
+          details?: Json
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credential_leak_logs_credential_leak_id_fkey"
+            columns: ["credential_leak_id"]
+            isOneToOne: false
+            referencedRelation: "credential_leaks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credential_leaks: {
+        Row: {
+          action_taken: string | null
+          created_at: string
+          email: string
+          id: string
+          notification_date: string
+          notification_source: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          action_taken?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          notification_date?: string
+          notification_source: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          action_taken?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          notification_date?: string
+          notification_source?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
       custom_incident_types: {
         Row: {
           created_at: string

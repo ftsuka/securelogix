@@ -11,7 +11,8 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  KeyRound
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -123,6 +124,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
             label="Alertas" 
             path="/alerts" 
             active={location.pathname === '/alerts'} 
+            onClick={closeSidebar}
+          />
+          <SidebarItem 
+            icon={<KeyRound size={18} />} 
+            label="Vazamentos de Credenciais" 
+            path="/credential-leaks" 
+            active={location.pathname === '/credential-leaks'} 
             onClick={closeSidebar}
           />
           <SidebarItem 
