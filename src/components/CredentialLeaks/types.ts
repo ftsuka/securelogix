@@ -6,6 +6,7 @@ export interface CredentialLeak {
   notification_date: Date;
   notification_source: string;
   action_taken: string | null;
+  partial_password?: string;
   created_at: Date;
   updated_at: Date;
 }
@@ -25,6 +26,7 @@ export interface CreateCredentialLeakFormValues {
   notification_date: Date;
   notification_source: string;
   action_taken?: string;
+  partial_password?: string;
 }
 
 export interface EditCredentialLeakFormValues extends CreateCredentialLeakFormValues {}

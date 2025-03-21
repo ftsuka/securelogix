@@ -26,6 +26,7 @@ const CredentialLeaksTable: React.FC<CredentialLeaksTableProps> = ({
           <TableRow>
             <TableHead>Email</TableHead>
             <TableHead>Username/Matrícula</TableHead>
+            <TableHead>Senha Parcial</TableHead>
             <TableHead>Data da Notificação</TableHead>
             <TableHead>Origem</TableHead>
             <TableHead>Ação Tomada</TableHead>
@@ -37,6 +38,7 @@ const CredentialLeaksTable: React.FC<CredentialLeaksTableProps> = ({
             <TableRow key={leak.id}>
               <TableCell>{leak.email}</TableCell>
               <TableCell>{leak.username}</TableCell>
+              <TableCell>{leak.partial_password || 'Não informada'}</TableCell>
               <TableCell>
                 {format(leak.notification_date, 'dd/MM/yyyy HH:mm')}
               </TableCell>

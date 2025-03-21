@@ -35,6 +35,7 @@ const CreateCredentialLeakDialog: React.FC<CreateCredentialLeakDialogProps> = ({
       notification_date: new Date(),
       notification_source: '',
       action_taken: '',
+      partial_password: '',
     },
   });
 
@@ -85,6 +86,20 @@ const CreateCredentialLeakDialog: React.FC<CreateCredentialLeakDialogProps> = ({
                   <FormLabel>Username ou Matrícula</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Username ou matrícula vazada" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="partial_password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Senha Parcial</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Ex: 14********05" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

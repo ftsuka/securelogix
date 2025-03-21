@@ -16,7 +16,7 @@ const CredentialLeaksSearch: React.FC<CredentialLeaksSearchProps> = ({
   return (
     <div className="flex w-full max-w-sm items-center space-x-2">
       <Input
-        placeholder="Buscar por email, username..."
+        placeholder="Buscar por email, username, senha parcial..."
         value={searchQuery}
         onChange={e => onSearchChange(e.target.value)}
         className="flex-1"
