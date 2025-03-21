@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
 import { EditIncidentFormValues, IncidentSeverity, IncidentStatus, IncidentType, CustomIncidentType } from './types';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Trash2 } from 'lucide-react';
 import { 
   Dialog, 
   DialogContent, 
@@ -17,7 +17,11 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { fetchCustomIncidentTypes, createCustomIncidentType } from '@/services/incidents/customTypes';
+import { 
+  fetchCustomIncidentTypes, 
+  createCustomIncidentType, 
+  deleteCustomIncidentType 
+} from '@/services/incidents';
 import { toast } from 'sonner';
 
 interface EditIncidentFormFieldsProps {
@@ -62,6 +66,17 @@ export const EditIncidentFormFields: React.FC<EditIncidentFormFieldsProps> = ({ 
       toast.error('Erro ao adicionar novo tipo de incidente');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteType = async (id: string) => {
+    try {
+      await deleteCustomIncidentType(id);
+      setCustomTypes(prev => prev.filter(type => type.id !== id));
+      toast.success('Tipo de incidente excluído com sucesso');
+    } catch (error) {
+      console.error('Erro ao excluir tipo:', error);
+      toast.error('Erro ao excluir tipo de incidente');
     }
   };
 
@@ -208,8 +223,19 @@ export const EditIncidentFormFields: React.FC<EditIncidentFormFieldsProps> = ({ 
                   
                   {/* Tipos personalizados */}
                   {customTypes.map(type => (
-                    <SelectItem key={type.id} value={type.name}>
-                      {type.name}
+                    <SelectItem key={type.id} value={type.name} className="flex justify-between items-center">
+                      <span>{type.name}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-5 w-5 ml-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteType(type.id);
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
                     </SelectItem>
                   ))}
                   

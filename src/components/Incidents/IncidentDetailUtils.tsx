@@ -11,7 +11,7 @@ import {
   IncidentSeverity, 
   IncidentStatus, 
   IncidentType 
-} from '@/components/Incidents/IncidentCard';
+} from './types';
 
 // Utility functions for incident status and type display
 export const getSeverityIcon = (severity: IncidentSeverity) => {
@@ -88,7 +88,10 @@ export const getTypeLabel = (type: IncidentType) => {
       return "Vazamento de dados";
     case 'ddos':
       return "DDoS";
-    default:
+    case 'other':
       return "Outro";
+    default:
+      // Para tipos personalizados, retornamos o próprio valor
+      return type;
   }
 };
