@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { CredentialLeak, CredentialLeakLog, CreateCredentialLeakFormValues } from '@/components/CredentialLeaks/types';
 
@@ -92,6 +93,8 @@ export async function updateCredentialLeak(id: string, leakData: Partial<CreateC
 }
 
 export async function deleteCredentialLeak(id: string): Promise<void> {
+  // With ON DELETE CASCADE configured in the database, we just need to delete the credential leak
+  // and the logs will be automatically handled by the database
   const { error } = await supabase
     .from('credential_leaks')
     .delete()
