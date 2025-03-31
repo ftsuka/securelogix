@@ -12,8 +12,7 @@ import {
   FormField, 
   FormItem, 
   FormLabel, 
-  FormMessage, 
-  useFormField 
+  FormMessage
 } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
@@ -30,7 +29,7 @@ interface IncidentTypeSelectorProps {
 export const IncidentTypeSelector: React.FC<IncidentTypeSelectorProps> = ({ form }) => {
   const [customTypes, setCustomTypes] = useState<CustomIncidentType[]>([]);
 
-  // Carregar tipos personalizados ao montar o componente
+  // Load custom types when component mounts
   useEffect(() => {
     const loadCustomTypes = async () => {
       try {
@@ -46,6 +45,9 @@ export const IncidentTypeSelector: React.FC<IncidentTypeSelectorProps> = ({ form
 
   const handleTypeAdded = (newType: CustomIncidentType) => {
     setCustomTypes(prev => [...prev, newType]);
+    
+    // Automatically select the newly created type
+    form.setValue('type', newType.name);
   };
 
   const handleDeleteType = async (id: string) => {
@@ -71,6 +73,7 @@ export const IncidentTypeSelector: React.FC<IncidentTypeSelectorProps> = ({ form
           </div>
           <Select 
             onValueChange={field.onChange} 
+            value={field.value}
             defaultValue={field.value}
           >
             <FormControl>
@@ -88,19 +91,8 @@ export const IncidentTypeSelector: React.FC<IncidentTypeSelectorProps> = ({ form
               
               {/* Tipos personalizados */}
               {customTypes.map(type => (
-                <SelectItem key={type.id} value={type.name} className="flex justify-between items-center">
-                  <span>{type.name}</span>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-5 w-5 ml-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteType(type.id);
-                    }}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
+                <SelectItem key={type.id} value={type.name}>
+                  {type.name}
                 </SelectItem>
               ))}
               
