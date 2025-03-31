@@ -95,6 +95,18 @@ export async function updateCredentialLeak(id: string, leakData: Partial<CreateC
 export async function deleteCredentialLeak(id: string): Promise<void> {
   console.log(`Deleting credential leak with ID: ${id}`);
   
+  // First delete any associated logs
+  const { error: logsError } = await supabase
+    .from('credential_leak_logs')
+    .delete()
+    .eq('credential_leak_id', id);
+    
+  if (logsError) {
+    console.log(`Note: Error while removing logs for leak ${id}:`, logsError);
+    // Continue with deletion even if log deletion fails
+  }
+
+  // Then delete the credential leak itself
   const { error } = await supabase
     .from('credential_leaks')
     .delete()
