@@ -10,6 +10,7 @@ import CredentialLeakLogsDialog from './CredentialLeakLogsDialog';
 import CredentialLeaksHeader from './CredentialLeaksHeader';
 import CredentialLeaksSearch from './CredentialLeaksSearch';
 import CredentialLeaksTable from './CredentialLeaksTable';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 export const CredentialLeaksList: React.FC = () => {
   const [leaks, setLeaks] = useState<CredentialLeak[]>([]);
@@ -20,6 +21,9 @@ export const CredentialLeaksList: React.FC = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isLogsDialogOpen, setIsLogsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [leakIdToDelete, setLeakIdToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadCredentialLeaks = async () => {
     try {
@@ -55,16 +59,26 @@ export const CredentialLeaksList: React.FC = () => {
     }
   }, [searchQuery, leaks]);
 
-  const handleDeleteLeak = async (id: string) => {
-    if (window.confirm('Tem certeza que deseja excluir este registro?')) {
-      try {
-        await deleteCredentialLeak(id);
-        toast.success('Vazamento de credencial excluído com sucesso');
-        loadCredentialLeaks();
-      } catch (error) {
-        console.error('Erro ao excluir vazamento de credencial:', error);
-        toast.error('Erro ao excluir vazamento de credencial');
-      }
+  const handleDeleteClick = (id: string) => {
+    setLeakIdToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!leakIdToDelete || isDeleting) return;
+    
+    try {
+      setIsDeleting(true);
+      await deleteCredentialLeak(leakIdToDelete);
+      toast.success('Vazamento de credencial excluído com sucesso');
+      loadCredentialLeaks();
+      setIsDeleteDialogOpen(false);
+      setLeakIdToDelete(null);
+    } catch (error) {
+      console.error('Erro ao excluir vazamento de credencial:', error);
+      toast.error('Erro ao excluir vazamento de credencial');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -114,7 +128,7 @@ export const CredentialLeaksList: React.FC = () => {
             <CredentialLeaksTable 
               leaks={filteredLeaks}
               onEdit={handleEditClick}
-              onDelete={handleDeleteLeak}
+              onDelete={handleDeleteClick}
               onViewLogs={handleViewLogs}
             />
           )}
@@ -143,6 +157,28 @@ export const CredentialLeaksList: React.FC = () => {
           />
         </>
       )}
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este registro de vazamento de credencial?
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? 'Excluindo...' : 'Excluir'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

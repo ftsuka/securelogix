@@ -95,12 +95,37 @@ export async function updateCredentialLeak(id: string, leakData: Partial<CreateC
 }
 
 export async function deleteCredentialLeak(id: string): Promise<void> {
-  const { error } = await supabase
-    .from('credential_leaks')
-    .delete()
-    .eq('id', id);
+  // First, manually create a delete log entry before deleting the record
+  try {
+    // Fetch the record to log in the details
+    const { data: leakData } = await supabase
+      .from('credential_leaks')
+      .select('*')
+      .eq('id', id)
+      .single();
+      
+    if (leakData) {
+      // Manually create a log entry
+      await supabase
+        .from('credential_leak_logs')
+        .insert({
+          credential_leak_id: id,
+          action: 'DELETE',
+          details: leakData
+        });
+    }
+    
+    // Then delete the credential leak record
+    const { error } = await supabase
+      .from('credential_leaks')
+      .delete()
+      .eq('id', id);
 
-  if (error) {
+    if (error) {
+      console.error(`Erro ao excluir vazamento de credencial com ID ${id}:`, error);
+      throw error;
+    }
+  } catch (error) {
     console.error(`Erro ao excluir vazamento de credencial com ID ${id}:`, error);
     throw error;
   }
