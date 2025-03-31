@@ -93,16 +93,24 @@ export async function updateCredentialLeak(id: string, leakData: Partial<CreateC
 }
 
 export async function deleteCredentialLeak(id: string): Promise<void> {
-  // With ON DELETE CASCADE configured in the database, we just need to delete the credential leak
-  // and the logs will be automatically handled by the database
-  const { error } = await supabase
-    .from('credential_leaks')
-    .delete()
-    .eq('id', id);
+  try {
+    console.log(`Attempting to delete credential leak with ID: ${id}`);
+    
+    const { error } = await supabase
+      .from('credential_leaks')
+      .delete()
+      .eq('id', id);
 
-  if (error) {
-    console.error(`Erro ao excluir vazamento de credencial com ID ${id}:`, error);
-    throw error;
+    if (error) {
+      console.error(`Error deleting credential leak with ID ${id}:`, error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      throw new Error(`Failed to delete credential leak: ${error.message}`);
+    }
+    
+    console.log(`Successfully deleted credential leak with ID: ${id}`);
+  } catch (err) {
+    console.error(`Exception when deleting credential leak with ID ${id}:`, err);
+    throw err;
   }
 }
 
