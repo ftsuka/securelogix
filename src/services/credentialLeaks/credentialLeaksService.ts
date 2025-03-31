@@ -93,25 +93,20 @@ export async function updateCredentialLeak(id: string, leakData: Partial<CreateC
 }
 
 export async function deleteCredentialLeak(id: string): Promise<void> {
-  try {
-    console.log(`Attempting to delete credential leak with ID: ${id}`);
-    
-    const { error } = await supabase
-      .from('credential_leaks')
-      .delete()
-      .eq('id', id);
+  console.log(`Deleting credential leak with ID: ${id}`);
+  
+  const { error } = await supabase
+    .from('credential_leaks')
+    .delete()
+    .eq('id', id);
 
-    if (error) {
-      console.error(`Error deleting credential leak with ID ${id}:`, error);
-      console.error('Error details:', JSON.stringify(error, null, 2));
-      throw new Error(`Failed to delete credential leak: ${error.message}`);
-    }
-    
-    console.log(`Successfully deleted credential leak with ID: ${id}`);
-  } catch (err) {
-    console.error(`Exception when deleting credential leak with ID ${id}:`, err);
-    throw err;
+  if (error) {
+    console.error(`Error deleting credential leak with ID ${id}:`, error);
+    console.error('Error details:', JSON.stringify(error, null, 2));
+    throw new Error(`Failed to delete credential leak: ${error.message}`);
   }
+  
+  console.log(`Successfully deleted credential leak with ID: ${id}`);
 }
 
 export async function fetchCredentialLeakLogs(leakId: string): Promise<CredentialLeakLog[]> {
