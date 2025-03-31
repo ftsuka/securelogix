@@ -28,6 +28,7 @@ interface IncidentTypeSelectorProps {
 
 export const IncidentTypeSelector: React.FC<IncidentTypeSelectorProps> = ({ form }) => {
   const [customTypes, setCustomTypes] = useState<CustomIncidentType[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Load custom types when component mounts
   useEffect(() => {
@@ -50,16 +51,51 @@ export const IncidentTypeSelector: React.FC<IncidentTypeSelectorProps> = ({ form
     form.setValue('type', newType.name);
   };
 
-  const handleDeleteType = async (id: string) => {
+  const handleDeleteType = async (id: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
+    if (isDeleting) return;
+    
+    setIsDeleting(true);
     try {
       await deleteCustomIncidentType(id);
       setCustomTypes(prev => prev.filter(type => type.id !== id));
+      
+      // If the current selected type is the one being deleted, reset to a default value
+      const currentType = form.getValues('type');
+      const deletedTypeName = customTypes.find(t => t.id === id)?.name;
+      
+      if (currentType === deletedTypeName) {
+        form.setValue('type', 'other');
+      }
+      
       toast.success('Tipo de incidente excluído com sucesso');
     } catch (error) {
       console.error('Erro ao excluir tipo:', error);
       toast.error('Erro ao excluir tipo de incidente');
+    } finally {
+      setIsDeleting(false);
     }
   };
+
+  // Custom SelectItem for types with delete button
+  const CustomTypeItem = ({ type }: { type: CustomIncidentType }) => (
+    <div className="flex items-center justify-between w-full pr-2">
+      <span>{type.name}</span>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-5 w-5 ml-2"
+        onClick={(e) => handleDeleteType(type.id, e)}
+        disabled={isDeleting}
+      >
+        <Trash2 className="h-3 w-3" />
+      </Button>
+    </div>
+  );
 
   return (
     <FormField
@@ -92,7 +128,7 @@ export const IncidentTypeSelector: React.FC<IncidentTypeSelectorProps> = ({ form
               {/* Tipos personalizados */}
               {customTypes.map(type => (
                 <SelectItem key={type.id} value={type.name}>
-                  {type.name}
+                  <CustomTypeItem type={type} />
                 </SelectItem>
               ))}
               
