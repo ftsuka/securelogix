@@ -95,7 +95,6 @@ export async function updateCredentialLeak(id: string, leakData: Partial<CreateC
 }
 
 export async function deleteCredentialLeak(id: string): Promise<void> {
-  // First, manually create a delete log entry before deleting the record
   try {
     // Fetch the record to log in the details
     const { data: leakData } = await supabase
@@ -105,7 +104,19 @@ export async function deleteCredentialLeak(id: string): Promise<void> {
       .single();
       
     if (leakData) {
-      // Manually create a log entry
+      // First delete the credential leak record
+      const { error: deleteError } = await supabase
+        .from('credential_leaks')
+        .delete()
+        .eq('id', id);
+
+      if (deleteError) {
+        console.error(`Erro ao excluir vazamento de credencial com ID ${id}:`, deleteError);
+        throw deleteError;
+      }
+      
+      // Then manually create a log entry after deletion
+      // This avoids foreign key constraint issues
       await supabase
         .from('credential_leak_logs')
         .insert({
@@ -113,17 +124,8 @@ export async function deleteCredentialLeak(id: string): Promise<void> {
           action: 'DELETE',
           details: leakData
         });
-    }
-    
-    // Then delete the credential leak record
-    const { error } = await supabase
-      .from('credential_leaks')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      console.error(`Erro ao excluir vazamento de credencial com ID ${id}:`, error);
-      throw error;
+    } else {
+      throw new Error(`Vazamento de credencial com ID ${id} não encontrado`);
     }
   } catch (error) {
     console.error(`Erro ao excluir vazamento de credencial com ID ${id}:`, error);
