@@ -96,36 +96,50 @@ export async function updateCredentialLeak(id: string, leakData: Partial<CreateC
 
 export async function deleteCredentialLeak(id: string): Promise<void> {
   try {
-    // Fetch the record to log in the details
-    const { data: leakData } = await supabase
+    // First, fetch the record details to store in logs
+    const { data: leakData, error: fetchError } = await supabase
       .from('credential_leaks')
       .select('*')
       .eq('id', id)
       .single();
       
-    if (leakData) {
-      // First delete the credential leak record
-      const { error: deleteError } = await supabase
-        .from('credential_leaks')
-        .delete()
-        .eq('id', id);
+    if (fetchError) {
+      console.error(`Erro ao buscar vazamento de credencial com ID ${id}:`, fetchError);
+      throw fetchError;
+    }
 
-      if (deleteError) {
-        console.error(`Erro ao excluir vazamento de credencial com ID ${id}:`, deleteError);
-        throw deleteError;
-      }
-      
-      // Then manually create a log entry after deletion
-      // This avoids foreign key constraint issues
-      await supabase
-        .from('credential_leak_logs')
-        .insert({
-          credential_leak_id: id,
-          action: 'DELETE',
-          details: leakData
-        });
-    } else {
+    if (!leakData) {
       throw new Error(`Vazamento de credencial com ID ${id} não encontrado`);
+    }
+    
+    // Store the leak data temporarily since we'll need it for logging after deletion
+    const leakDetails = { ...leakData };
+    
+    // Delete the credential leak record first
+    const { error: deleteError } = await supabase
+      .from('credential_leaks')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      console.error(`Erro ao excluir vazamento de credencial com ID ${id}:`, deleteError);
+      throw deleteError;
+    }
+    
+    // Now create a log entry directly in the logs table without using the trigger
+    // This bypasses the foreign key constraint since the record is already deleted
+    const { error: logError } = await supabase
+      .from('credential_leak_logs')
+      .insert({
+        credential_leak_id: id,  // We still use the original ID as reference
+        action: 'DELETE',
+        details: leakDetails
+      });
+      
+    if (logError) {
+      console.error(`Erro ao criar log para exclusão do vazamento ID ${id}:`, logError);
+      // We don't throw here since the main operation (deletion) succeeded
+      // Just log the error as this is a secondary operation
     }
   } catch (error) {
     console.error(`Erro ao excluir vazamento de credencial com ID ${id}:`, error);
